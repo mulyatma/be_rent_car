@@ -2,10 +2,22 @@ const express = require('express');
 const router = express.Router();
 const Car = require('../models/Car');
 
-// Mendapatkan semua mobil
+// Mendapatkan semua mobil dengan opsi pencarian dan filter
 router.get('/', async (req, res) => {
     try {
-        const cars = await Car.find();
+        let query = {};
+
+        // Pencarian berdasarkan nama mobil (jika ada)
+        if (req.query.name) {
+            query.name = { $regex: req.query.name, $options: 'i' }; // i adalah case-insensitive
+        }
+
+        // Filter berdasarkan keberadaan sopir (jika ada)
+        if (req.query.hasDriver) {
+            query.hasDriver = req.query.hasDriver === 'true'; // konversi string 'true' ke boolean true
+        }
+
+        const cars = await Car.find(query);
         res.json(cars);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -16,16 +28,6 @@ router.get('/', async (req, res) => {
 router.get('/:id', getCar, (req, res) => {
     res.json(res.car);
 });
-
-// Mendapatkan semua mobil berdasarkan status driver
-// router.get('/driver/:driver', async (req, res) => {
-//     try {
-//         const cars = await Car.find({ driver: req.params.driver === 'true' });
-//         res.json(cars);
-//     } catch (err) {
-//         res.status(500).json({ message: err.message });
-//     }
-// });
 
 // Middleware untuk mendapatkan mobil berdasarkan ID
 async function getCar(req, res, next) {
