@@ -8,13 +8,13 @@ router.get('/', async (req, res) => {
         let query = {};
 
         // Pencarian berdasarkan nama mobil (jika ada)
-        if (req.query.name) {
-            query.name = { $regex: req.query.name, $options: 'i' }; // i adalah case-insensitive
+        if (req.query.nameCar) {
+            query.nameCar = { $regex: req.query.nameCar, $options: 'i' }; // i adalah case-insensitive
         }
 
         // Filter berdasarkan keberadaan sopir (jika ada)
-        if (req.query.hasDriver) {
-            query.hasDriver = req.query.hasDriver === 'true'; // konversi string 'true' ke boolean true
+        if (req.query.driver) {
+            query.driver = req.query.driver === 'true'; // konversi string 'true' ke boolean true
         }
 
         const cars = await Car.find(query);
